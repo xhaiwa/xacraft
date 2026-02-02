@@ -56,7 +56,6 @@ public class Game {
     }
 
     public void render() {
-        System.out.println("Call to render");
         glBegin(GL_TRIANGLES);
         glColor3f(1.f, 0.f, 0.f);
         glVertex2f(0.f, 1.f);
