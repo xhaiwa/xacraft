@@ -32,7 +32,7 @@ public class Window {
 
     public void init() {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         // Create the window
         glfwWindow = glfwCreateWindow(this.width,
