@@ -6,8 +6,9 @@ public class Block {
     private Location location;
     protected BlockType blockType;
 
-    public Block(Location location) {
+    public Block(Location location, BlockType blockType) {
         this.location = location;
+        this.blockType = blockType;
     }
 
     public Location getLocation() {
@@ -16,5 +17,9 @@ public class Block {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public BlockType getBlockType() {
+        return this.blockType;
     }
 }
