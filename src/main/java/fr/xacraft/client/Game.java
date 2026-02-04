@@ -38,6 +38,7 @@ public class Game {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
             this.update();
             this.renderer.render();
+            this.window.swapBuffers();
             glfwPollEvents();
         }
 

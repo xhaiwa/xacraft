@@ -62,6 +62,5 @@ public class Renderer {
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glDisableVertexAttribArray(0);
-        this.window.swapBuffers();
     }
 }
