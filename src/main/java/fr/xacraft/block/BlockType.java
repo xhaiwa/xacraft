@@ -1,8 +1,8 @@
 package fr.xacraft.block;
 
 public enum BlockType {
-    AIR(true, false, -1),
-    STONE(false, true, 0);
+    AIR(true, false, 0),
+    STONE(false, true, 1);
 
     private boolean transparent;
     private boolean solid;

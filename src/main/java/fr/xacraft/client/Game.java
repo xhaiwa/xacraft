@@ -1,7 +1,11 @@
 package fr.xacraft.client;
 
+import fr.xacraft.shader.*;
+
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+
+import java.util.ServiceLoader;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
@@ -29,6 +33,9 @@ public class Game {
         this.window = Window.getInstance();
 
         GL.createCapabilities();
+
+        // Load Shader
+        //...
 
         // VAO + VBO + Vertex
         this.vaoId = glGenVertexArrays();
