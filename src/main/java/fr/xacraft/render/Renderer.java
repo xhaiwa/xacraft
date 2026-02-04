@@ -3,9 +3,7 @@ package fr.xacraft.render;
 import fr.xacraft.client.Window;
 import fr.xacraft.shader.Shader;
 import fr.xacraft.shader.ShaderProgram;
-import org.lwjgl.opengl.GL;
 
-import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL20.*;
