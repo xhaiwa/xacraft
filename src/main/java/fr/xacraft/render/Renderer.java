@@ -13,6 +13,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 public class Renderer {
     private static Renderer instance;
 
+    private ShaderProgram program;
     private Window window;
 
     private int vaoId;
@@ -37,10 +38,8 @@ public class Renderer {
         Shader fragmentShader = Shader.loadShader(GL_FRAGMENT_SHADER,
                 "src/main/java/fr/xacraft/shader/fragment.glsl");
 
-        ShaderProgram program = new ShaderProgram(vertexShader.getID(),
+        this.program = new ShaderProgram(vertexShader.getID(),
                 fragmentShader.getID());
-
-        program.use();
 
         // VAO + VBO + Vertex
         this.vaoId = glGenVertexArrays();
@@ -54,13 +53,19 @@ public class Renderer {
         this.vboId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
         glBufferData(GL_ARRAY_BUFFER, this.vertexBufferData, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
     }
 
-    public void render() {
-        glEnableVertexAttribArray(0);
+    public void render(Camera camera) {
+        this.program.use();
+
+        int viewLoc = glGetUniformLocation(this.program.getID(), "view");
+        int projLoc = glGetUniformLocation(this.program.getID(), "projection");
+        glUniformMatrix4fv(viewLoc, false, camera.getView().get(new float[16]));
+        glUniformMatrix4fv(projLoc, false, camera.getProjection().get(new float[16]));
+
         glBindBuffer(GL_ARRAY_BUFFER, this.vboId);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDisableVertexAttribArray(0);
     }
 }

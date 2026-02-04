@@ -1,7 +1,9 @@
 package fr.xacraft.client;
 
+import fr.xacraft.render.Camera;
 import fr.xacraft.render.Renderer;
 
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -12,6 +14,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 public class Game {
     private Window window;
     private Renderer renderer;
+    private Camera camera;
 
     public void init() {
         // Setup an error callback. The default implementation
@@ -23,6 +26,12 @@ public class Game {
         this.window = Window.getInstance();
         this.renderer = Renderer.getInstance();
         this.renderer.init();
+        this.camera = new Camera(new Vector3f(0, 0, 5),
+                                new Vector3f(0, 0, 0),
+                                16 / 9.f,
+                                70.f,
+                                0.1f,
+                                1000.f);
     }
 
     public void loop() {
@@ -37,7 +46,7 @@ public class Game {
         while (!this.window.shouldClose()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
             this.update();
-            this.renderer.render();
+            this.renderer.render(this.camera);
             this.window.swapBuffers();
             glfwPollEvents();
         }
