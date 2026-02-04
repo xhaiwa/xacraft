@@ -1,5 +1,7 @@
 package fr.xacraft.client;
 
+import org.lwjgl.opengl.GL;
+
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
@@ -33,6 +35,10 @@ public class Window {
     public void init() {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         // Create the window
         glfwWindow = glfwCreateWindow(this.width,
@@ -50,6 +56,7 @@ public class Window {
         });
 
         glfwMakeContextCurrent(glfwWindow);
+        GL.createCapabilities();
         // Vsync
         glfwSwapInterval(1);
 
