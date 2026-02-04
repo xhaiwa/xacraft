@@ -1,7 +1,6 @@
 package fr.xacraft.client;
 
 import org.lwjgl.*;
-import static org.lwjgl.glfw.GLFW.*;
 
 public class Main {
 
