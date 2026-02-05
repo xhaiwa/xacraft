@@ -3,23 +3,17 @@ package fr.xacraft.block;
 import fr.xacraft.world.Location;
 
 public class Block {
-    private Location location;
     protected BlockType blockType;
 
-    public Block(Location location, BlockType blockType) {
-        this.location = location;
+    public Block(BlockType blockType) {
         this.blockType = blockType;
-    }
-
-    public Location getLocation() {
-        return this.location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
     }
 
     public BlockType getBlockType() {
         return this.blockType;
+    }
+
+    public void setBlockType(BlockType blockType) {
+        this.blockType = blockType;
     }
 }

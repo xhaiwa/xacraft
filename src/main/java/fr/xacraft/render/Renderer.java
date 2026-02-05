@@ -3,6 +3,7 @@ package fr.xacraft.render;
 import fr.xacraft.client.Window;
 import fr.xacraft.shader.Shader;
 import fr.xacraft.shader.ShaderProgram;
+import fr.xacraft.world.Chunk;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
@@ -15,10 +16,10 @@ public class Renderer {
 
     private ShaderProgram program;
     private Window window;
+    private Chunk chunk;
 
     private int vaoId;
     private int vboId;
-    private float[] vertexBufferData;
 
     public Renderer() {
         this.window = Window.getInstance();
@@ -41,19 +42,21 @@ public class Renderer {
         this.program = new ShaderProgram(vertexShader.getID(),
                 fragmentShader.getID());
 
+        // Chunk move to world in future
+        this.chunk = new Chunk();
+        this.chunk.generateFlatChunk();
+        this.chunk.generateMesh();
+
         // VAO + VBO + Vertex
         this.vaoId = glGenVertexArrays();
         glBindVertexArray(vaoId);
-        this.vertexBufferData = new float[] {
-                -1.0f, -1.0f, 0.0f,
-                1.0f, -1.0f, 0.0f,
-                0.0f,  1.0f, 0.0f,
-        };
 
         this.vboId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, this.vertexBufferData, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, this.chunk.getMeshesData(), GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     public void render(Camera camera) {
@@ -66,6 +69,6 @@ public class Renderer {
 
         glBindBuffer(GL_ARRAY_BUFFER, this.vboId);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, this.chunk.getVertexCount());
     }
 }
