@@ -2,6 +2,7 @@ package fr.xacraft.render;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class Camera {
     private Vector3f position;
@@ -13,6 +14,9 @@ public class Camera {
 
     private Matrix4f projection;
     private Matrix4f view;
+
+    private float movementSpeed = 5.0f;
+    private float mouseSensitivity = 0.15f;
 
     public Camera(Vector3f position,
                   Vector3f rotation,
@@ -44,6 +48,72 @@ public class Camera {
                 .translate(-this.position.x,
                             -this.position.y,
                             -this.position.z);
+    }
+
+    // NOUVEAU : Déplacement clavier
+    public void move(int direction, float deltaTime) {
+        float velocity = movementSpeed * deltaTime;
+
+        Vector3f forward = getForward();
+        Vector3f right = getRight();
+
+        switch (direction) {
+            case GLFW_KEY_W:
+                position.add(forward.mul(velocity));
+                break;
+            case GLFW_KEY_S:
+                position.sub(forward.mul(velocity));
+                break;
+            case GLFW_KEY_D:
+                position.sub(right.mul(velocity));
+                break;
+            case GLFW_KEY_A:
+                position.add(right.mul(velocity));
+                break;
+            case GLFW_KEY_SPACE:
+                position.y += velocity;
+                break;
+            case GLFW_KEY_LEFT_SHIFT:
+                position.y -= velocity;
+                break;
+        }
+    }
+
+    public void rotate(float xOffset, float yOffset) {
+        xOffset *= mouseSensitivity;
+        yOffset *= mouseSensitivity;
+
+        rotation.y += (float) Math.toRadians(xOffset);
+
+        rotation.x += (float) Math.toRadians(yOffset);
+
+        if (rotation.x > Math.toRadians(89.0f)) {
+            rotation.x = (float) Math.toRadians(89.0f);
+        }
+        if (rotation.x < Math.toRadians(-89.0f)) {
+            rotation.x = (float) Math.toRadians(-89.0f);
+        }
+    }
+
+    private Vector3f getForward() {
+        float yaw = rotation.y;
+        float pitch = rotation.x;
+
+        return new Vector3f(
+                (float) Math.sin(yaw) * (float) Math.cos(pitch),
+                (float) -Math.sin(pitch),
+                (float) -Math.cos(yaw) * (float) Math.cos(pitch)
+        ).normalize();
+    }
+
+    private Vector3f getRight() {
+        float yaw = rotation.y - (float) Math.toRadians(90.0f);
+
+        return new Vector3f(
+                (float) Math.sin(yaw),
+                0,
+                (float) -Math.cos(yaw)
+        ).normalize();
     }
 
     public Matrix4f getView() {

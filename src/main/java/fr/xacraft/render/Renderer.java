@@ -4,6 +4,9 @@ import fr.xacraft.client.Window;
 import fr.xacraft.shader.Shader;
 import fr.xacraft.shader.ShaderProgram;
 import fr.xacraft.world.Chunk;
+import org.joml.Vector2i;
+
+import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
@@ -20,6 +23,7 @@ public class Renderer {
 
     private int vaoId;
     private int vboId;
+    private int lightVboId;
 
     public Renderer() {
         this.window = Window.getInstance();
@@ -43,7 +47,7 @@ public class Renderer {
                 fragmentShader.getID());
 
         // Chunk move to world in future
-        this.chunk = new Chunk();
+        this.chunk = new Chunk(new Vector2i(1, 1));
         this.chunk.generateFlatChunk();
         this.chunk.generateMesh();
 
@@ -55,6 +59,11 @@ public class Renderer {
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
         glBufferData(GL_ARRAY_BUFFER, this.chunk.getMeshesData(), GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
+
+        this.lightVboId = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, this.lightVboId);
+        glBufferData(GL_ARRAY_BUFFER, this.chunk.getLightData(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(1);
 
         glEnable(GL_DEPTH_TEST);
     }
@@ -70,5 +79,9 @@ public class Renderer {
         glBindBuffer(GL_ARRAY_BUFFER, this.vboId);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
         glDrawArrays(GL_TRIANGLES, 0, this.chunk.getVertexCount());
+
+        glBindBuffer(GL_ARRAY_BUFFER, this.lightVboId);
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0);
+        glDrawArrays(GL_TRIANGLES, 0, this.chunk.getLightCount());
     }
 }

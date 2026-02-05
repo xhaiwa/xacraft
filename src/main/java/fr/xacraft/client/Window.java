@@ -58,7 +58,6 @@ public class Window {
         glfwMakeContextCurrent(glfwWindow);
         GL.createCapabilities();
         // Vsync
-        glfwSwapInterval(1);
 
         glfwShowWindow(glfwWindow);
     }
