@@ -4,6 +4,7 @@ import fr.xacraft.client.Window;
 import fr.xacraft.shader.Shader;
 import fr.xacraft.shader.ShaderProgram;
 import fr.xacraft.world.Chunk;
+import fr.xacraft.world.World;
 import org.joml.Vector2i;
 
 import java.util.Arrays;
@@ -19,7 +20,7 @@ public class Renderer {
 
     private ShaderProgram program;
     private Window window;
-    private Chunk chunk;
+    private World world;
 
     private int vaoId;
     private int vboId;
@@ -47,23 +48,8 @@ public class Renderer {
                 fragmentShader.getID());
 
         // Chunk move to world in future
-        this.chunk = new Chunk(new Vector2i(1, 1));
-        this.chunk.generateFlatChunk();
-        this.chunk.generateMesh();
+        this.world = new World();
 
-        // VAO + VBO + Vertex
-        this.vaoId = glGenVertexArrays();
-        glBindVertexArray(vaoId);
-
-        this.vboId = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, this.chunk.getMeshesData(), GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-
-        this.lightVboId = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, this.lightVboId);
-        glBufferData(GL_ARRAY_BUFFER, this.chunk.getLightData(), GL_STATIC_DRAW);
-        glEnableVertexAttribArray(1);
 
         glEnable(GL_DEPTH_TEST);
     }
@@ -76,12 +62,6 @@ public class Renderer {
         glUniformMatrix4fv(viewLoc, false, camera.getView().get(new float[16]));
         glUniformMatrix4fv(projLoc, false, camera.getProjection().get(new float[16]));
 
-        glBindBuffer(GL_ARRAY_BUFFER, this.vboId);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-        glDrawArrays(GL_TRIANGLES, 0, this.chunk.getVertexCount());
-
-        glBindBuffer(GL_ARRAY_BUFFER, this.lightVboId);
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0);
-        glDrawArrays(GL_TRIANGLES, 0, this.chunk.getLightCount());
+        this.world.render();
     }
 }

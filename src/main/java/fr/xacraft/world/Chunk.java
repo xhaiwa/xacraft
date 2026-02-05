@@ -7,6 +7,17 @@ import org.joml.Vector2i;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+
 public class Chunk {
     /**
      * Block [x][y][z]
@@ -18,9 +29,16 @@ public class Chunk {
     private List<Float> meshes;
     private List<Float> lights;
 
+    private int vaoId;
+    private int vboId;
+    private int lightVboId;
+
     public Chunk(Vector2i pos) {
         this.block = new Block[16][255][16];
         this.pos = new Vector2i(pos.x * 16, pos.y * 16);
+        this.vaoId = glGenVertexArrays();
+        this.vboId = glGenBuffers();
+        this.lightVboId = glGenBuffers();
     }
 
     public Block[][][] getBlock() {
@@ -211,5 +229,28 @@ public class Chunk {
 
     public boolean isAir(int x, int y, int z) {
         return this.block[x][y][z].getBlockType() == BlockType.AIR;
+    }
+
+    public void uploadToGpu() {
+        glBindVertexArray(vaoId);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glBufferData(GL_ARRAY_BUFFER, this.getMeshesData(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, this.lightVboId);
+        glBufferData(GL_ARRAY_BUFFER, this.getLightData(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(1);
+    }
+
+    public void render() {
+        uploadToGpu();
+        glBindBuffer(GL_ARRAY_BUFFER, this.vboId);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        glDrawArrays(GL_TRIANGLES, 0, this.getVertexCount());
+
+        glBindBuffer(GL_ARRAY_BUFFER, this.lightVboId);
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0);
+        glDrawArrays(GL_TRIANGLES, 0, this.getLightCount());
     }
 }
