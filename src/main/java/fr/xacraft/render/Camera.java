@@ -15,8 +15,11 @@ public class Camera {
     private Matrix4f projection;
     private Matrix4f view;
 
-    private float movementSpeed = 5.0f;
+    private float movementSpeed = 30.0f;
     private float mouseSensitivity = 0.15f;
+
+    private Vector3f previousRotation;
+    private Vector3f renderRotation;
 
     public Camera(Vector3f position,
                   Vector3f rotation,
@@ -30,7 +33,11 @@ public class Camera {
         this.fov = fov;
         this.zNear = zNear;
         this.zFar = zFar;
-        this.projection = new Matrix4f().perspective(this.fov, ratio, zNear, zFar);
+
+        this.previousRotation = new Vector3f(rotation);
+        this.renderRotation = new Vector3f(rotation);
+
+        this.projection = new Matrix4f().perspective((float)Math.toRadians(this.fov), ratio, zNear, zFar);
         this.view = new Matrix4f();
 
         updateViewMatrix();
@@ -42,15 +49,14 @@ public class Camera {
 
     public void updateViewMatrix() {
         this.view.identity()
-                .rotateX(this.rotation.x)
-                .rotateY(this.rotation.y)
-                .rotateZ(this.rotation.z)
+                .rotateX(this.renderRotation.x)
+                .rotateY(this.renderRotation.y)
+                .rotateZ(this.renderRotation.z)
                 .translate(-this.position.x,
-                            -this.position.y,
-                            -this.position.z);
+                        -this.position.y,
+                        -this.position.z);
     }
 
-    // NOUVEAU : Déplacement clavier
     public void move(int direction, float deltaTime) {
         float velocity = movementSpeed * deltaTime;
 
@@ -79,12 +85,15 @@ public class Camera {
         }
     }
 
+    public void saveRotation() {
+        previousRotation.set(rotation);
+    }
+
     public void rotate(float xOffset, float yOffset) {
         xOffset *= mouseSensitivity;
         yOffset *= mouseSensitivity;
 
         rotation.y += (float) Math.toRadians(xOffset);
-
         rotation.x += (float) Math.toRadians(yOffset);
 
         if (rotation.x > Math.toRadians(89.0f)) {
@@ -95,7 +104,13 @@ public class Camera {
         }
     }
 
-    private Vector3f getForward() {
+    public void interpolateRotation(float alpha) {
+        renderRotation.x = previousRotation.x + (rotation.x - previousRotation.x) * alpha;
+        renderRotation.y = previousRotation.y + (rotation.y - previousRotation.y) * alpha;
+        renderRotation.z = previousRotation.z + (rotation.z - previousRotation.z) * alpha;
+    }
+
+    public Vector3f getForward() {
         float yaw = rotation.y;
         float pitch = rotation.x;
 
@@ -106,7 +121,7 @@ public class Camera {
         ).normalize();
     }
 
-    private Vector3f getRight() {
+    public Vector3f getRight() {
         float yaw = rotation.y - (float) Math.toRadians(90.0f);
 
         return new Vector3f(
@@ -122,5 +137,13 @@ public class Camera {
 
     public Matrix4f getProjection() {
         return this.projection;
+    }
+
+    public Vector3f getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(float x, float y, float z) {
+        this.position.set(x, y, z);
     }
 }

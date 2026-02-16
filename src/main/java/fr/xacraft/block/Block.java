@@ -1,7 +1,5 @@
 package fr.xacraft.block;
 
-import fr.xacraft.world.Location;
-
 public class Block {
     protected BlockType blockType;
 

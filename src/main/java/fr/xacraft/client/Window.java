@@ -40,7 +40,6 @@ public class Window {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-        // Create the window
         glfwWindow = glfwCreateWindow(this.width,
                                   this.height,
                                   this.title,
@@ -49,15 +48,9 @@ public class Window {
         if ( glfwWindow == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
-        // Callback pour fermer la fenetre, se lance a chaque appuie sur la touche
-        glfwSetKeyCallback(glfwWindow, (window, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-                glfwSetWindowShouldClose(window, true);
-        });
-
         glfwMakeContextCurrent(glfwWindow);
+        glfwSwapInterval(0);
         GL.createCapabilities();
-        // Vsync
 
         glfwShowWindow(glfwWindow);
     }
@@ -67,7 +60,6 @@ public class Window {
     }
 
     public void destroyWindow() {
-        // Free the window callbacks and destroy the window
         glfwFreeCallbacks(this.glfwWindow);
         glfwDestroyWindow(this.glfwWindow);
     }
@@ -78,5 +70,17 @@ public class Window {
 
     public void swapBuffers() {
         glfwSwapBuffers(glfwWindow);
+    }
+
+    public void setTitle(String title) {
+        glfwSetWindowTitle(this.glfwWindow, title);
+    }
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public int getHeight() {
+        return this.height;
     }
 }
