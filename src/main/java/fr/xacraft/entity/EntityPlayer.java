@@ -10,12 +10,14 @@ import static org.lwjgl.glfw.GLFW.*;
 public class EntityPlayer extends EntityLiving implements IEntityPlayable {
 
     private Camera camera;
-    private float movementSpeed;
 
     private boolean isJumping = false;
     private float jumpStartTime = 0f;
     private float jumpStartY = 0f;
     private int jumpFrameCount = 0;
+
+    private boolean noclip = false;
+    private boolean nKeyWasPressed = false;
 
     public EntityPlayer(Vector3f position,
                         Vector3f boudingBox,
@@ -32,12 +34,16 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
                 new Vector3f(0, 0, 0),
                 16 / 9.f, 70.f, 0.1f, 1000.f
         );
-
-        this.movementSpeed = 4.317f;
     }
 
     @Override
     public void update() {
+        if (noclip) {
+            previousPosition.set(position);
+            position.add(motion);
+            motion.mul(0.8f);
+            return;
+        }
 
         if (isJumping) {
             jumpFrameCount++;
@@ -56,6 +62,22 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
 
     @Override
     public void handleInput(float deltaTime) {
+        long glfwWindow = Window.getInstance().getGlfwWindow();
+
+        boolean nKeyPressed = glfwGetKey(glfwWindow, GLFW_KEY_N) == GLFW_PRESS;
+        if (nKeyPressed && !nKeyWasPressed) {
+            noclip = !noclip;
+            if (noclip) {
+                motion.set(0, 0, 0);
+            }
+        }
+        nKeyWasPressed = nKeyPressed;
+
+        if (noclip) {
+            handleNoclipInput(glfwWindow);
+            return;
+        }
+
         float acceleration = 0.15f;
 
         Vector3f forward = camera.getForward();
@@ -68,7 +90,7 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
 
         Vector3f inputDirection = new Vector3f();
 
-        long glfwWindow = Window.getInstance().getGlfwWindow();
+        boolean ctrlPressed = glfwGetKey(glfwWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
         if (glfwGetKey(glfwWindow, GLFW_KEY_W) == GLFW_PRESS)
             inputDirection.add(forward);
@@ -100,6 +122,37 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
 
         if (glfwGetKey(glfwWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
             this.jump();
+    }
+
+    private void handleNoclipInput(long glfwWindow) {
+        boolean ctrlPressed = glfwGetKey(glfwWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+        float speed = ctrlPressed ? 2.5f : 0.8f;
+
+        Vector3f forward = camera.getForward();
+        Vector3f right = camera.getRight();
+
+        Vector3f inputDirection = new Vector3f();
+
+        if (glfwGetKey(glfwWindow, GLFW_KEY_W) == GLFW_PRESS)
+            inputDirection.add(forward);
+        if (glfwGetKey(glfwWindow, GLFW_KEY_S) == GLFW_PRESS)
+            inputDirection.sub(forward);
+        if (glfwGetKey(glfwWindow, GLFW_KEY_A) == GLFW_PRESS)
+            inputDirection.add(right);
+        if (glfwGetKey(glfwWindow, GLFW_KEY_D) == GLFW_PRESS)
+            inputDirection.sub(right);
+
+        if (glfwGetKey(glfwWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
+            inputDirection.y += 1.0f;
+        if (glfwGetKey(glfwWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            inputDirection.y -= 1.0f;
+
+        if (inputDirection.lengthSquared() > 0) {
+            inputDirection.normalize();
+            this.motion.x = inputDirection.x * speed;
+            this.motion.y = inputDirection.y * speed;
+            this.motion.z = inputDirection.z * speed;
+        }
     }
 
     @Override
@@ -135,5 +188,9 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
 
         camera.update();
         return this.camera;
+    }
+
+    public boolean isNoclip() {
+        return noclip;
     }
 }

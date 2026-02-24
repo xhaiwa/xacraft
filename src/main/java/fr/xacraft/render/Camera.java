@@ -146,4 +146,12 @@ public class Camera {
     public void setPosition(float x, float y, float z) {
         this.position.set(x, y, z);
     }
+
+    public void setFov(float fov) {
+        this.fov = fov;
+    }
+
+    public float getFov() {
+        return this.fov;
+    }
 }

@@ -118,6 +118,11 @@ public class Game {
         uiRenderer.drawText(String.format("X: %.1f Y: %.1f Z: %.1f", pos.x, pos.y, pos.z),
                 10.f, 3 * 32.f, 0.5f, new float[]{1.f, 1.f, 1.f, 1.f});
 
+        if (player.isNoclip()) {
+            uiRenderer.drawText("NOCLIP [N]", 10.f, 4 * 32.f, 0.5f,
+                    new float[]{1.f, 1.f, 0.f, 1.f});
+        }
+
         window.swapBuffers();
     }
 

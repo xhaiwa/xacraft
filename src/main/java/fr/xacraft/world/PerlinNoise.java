@@ -3,25 +3,63 @@ package fr.xacraft.world;
 import java.util.Random;
 
 public class PerlinNoise {
-    private static final int GRID_SIZE = 256;
+    private static final int TABLE_SIZE = 256;
+    private int[] perm;
     private float[][] gradientX;
     private float[][] gradientY;
 
+    private static final float[][] GRAD3 = {
+            { 1, 1, 0}, {-1, 1, 0}, { 1,-1, 0}, {-1,-1, 0},
+            { 1, 0, 1}, {-1, 0, 1}, { 1, 0,-1}, {-1, 0,-1},
+            { 0, 1, 1}, { 0,-1, 1}, { 0, 1,-1}, { 0,-1,-1}
+    };
+
     public PerlinNoise(long seed) {
-        this.gradientX = new float[GRID_SIZE][GRID_SIZE];
-        this.gradientY = new float[GRID_SIZE][GRID_SIZE];
+        this.gradientX = new float[TABLE_SIZE][TABLE_SIZE];
+        this.gradientY = new float[TABLE_SIZE][TABLE_SIZE];
+        this.perm = new int[TABLE_SIZE * 2];
         generateGradients(seed);
+        generatePermutationTable(seed);
     }
 
     private void generateGradients(long seed) {
         Random random = new Random(seed);
-        for (int y = 0; y < GRID_SIZE; y++) {
-            for (int x = 0; x < GRID_SIZE; x++) {
+        for (int y = 0; y < TABLE_SIZE; y++) {
+            for (int x = 0; x < TABLE_SIZE; x++) {
                 double angle = random.nextDouble() * 2.0 * Math.PI;
                 gradientX[y][x] = (float) Math.cos(angle);
                 gradientY[y][x] = (float) Math.sin(angle);
             }
         }
+    }
+
+    private void generatePermutationTable(long seed) {
+        Random random = new Random(seed * 6364136223846793005L + 1442695040888963407L);
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            perm[i] = i;
+        }
+        for (int i = TABLE_SIZE - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            int tmp = perm[i];
+            perm[i] = perm[j];
+            perm[j] = tmp;
+        }
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            perm[TABLE_SIZE + i] = perm[i];
+        }
+    }
+
+    private float fade(float t) {
+        return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
+    }
+
+    private float lerp(float a, float b, float t) {
+        return a + t * (b - a);
+    }
+
+    private float grad3(int hash, float x, float y, float z) {
+        float[] g = GRAD3[hash % 12];
+        return g[0] * x + g[1] * y + g[2] * z;
     }
 
     private float smoothstep(float w) {
@@ -35,8 +73,8 @@ public class PerlinNoise {
     }
 
     private float dotGridGradient(int ix, int iy, float x, float y) {
-        int gridX = ((ix % GRID_SIZE) + GRID_SIZE) % GRID_SIZE;
-        int gridY = ((iy % GRID_SIZE) + GRID_SIZE) % GRID_SIZE;
+        int gridX = ((ix % TABLE_SIZE) + TABLE_SIZE) % TABLE_SIZE;
+        int gridY = ((iy % TABLE_SIZE) + TABLE_SIZE) % TABLE_SIZE;
 
         float dx = x - ix;
         float dy = y - iy;
@@ -65,10 +103,7 @@ public class PerlinNoise {
     }
 
     public double perlin(double x, double y, double z) {
-        float fx = (float) x;
-        float fy = (float) (y + z * 0.333);
-
-        return perlin(fx, fy);
+        return perlin3D((float) x, (float) y, (float) z);
     }
 
     public float octavePerlin(float x, float y, int octaves, float persistence) {
@@ -110,10 +145,10 @@ public class PerlinNoise {
         double frequency = 1.0;
 
         for (int i = 0; i < octaves; i++) {
-            result += perlin(
-                    x * frequency * scaleX,
-                    y * frequency * scaleY,
-                    z * frequency * scaleX
+            result += perlin3D(
+                    (float)(x * frequency * scaleX),
+                    (float)(y * frequency * scaleY),
+                    (float)(z * frequency * scaleX)
             ) * amplitude;
 
             frequency *= 2.0;
@@ -124,33 +159,40 @@ public class PerlinNoise {
     }
 
     private float perlin3D(float x, float y, float z) {
-        int xi = (int) Math.floor(x) & (GRID_SIZE - 1);
-        int yi = (int) Math.floor(y) & (GRID_SIZE - 1);
-        int zi = (int) Math.floor(z) & (GRID_SIZE - 1);
+        int xi = (int) Math.floor(x) & (TABLE_SIZE - 1);
+        int yi = (int) Math.floor(y) & (TABLE_SIZE - 1);
+        int zi = (int) Math.floor(z) & (TABLE_SIZE - 1);
 
         float xf = x - (float) Math.floor(x);
         float yf = y - (float) Math.floor(y);
         float zf = z - (float) Math.floor(z);
 
-        float n000 = dotGridGradient(xi, yi, xf, yf);
-        float n100 = dotGridGradient(xi + 1, yi, xf - 1.0f, yf);
-        float n010 = dotGridGradient(xi, yi + 1, xf, yf - 1.0f);
-        float n110 = dotGridGradient(xi + 1, yi + 1, xf - 1.0f, yf - 1.0f);
+        float u = fade(xf);
+        float v = fade(yf);
+        float w = fade(zf);
 
-        int zOffset = (int)(z * 17.0f);
-        float n001 = dotGridGradient((xi + zOffset) & (GRID_SIZE - 1), yi, xf, yf);
-        float n101 = dotGridGradient((xi + 1 + zOffset) & (GRID_SIZE - 1), yi, xf - 1.0f, yf);
-        float n011 = dotGridGradient((xi + zOffset) & (GRID_SIZE - 1), yi + 1, xf, yf - 1.0f);
-        float n111 = dotGridGradient((xi + 1 + zOffset) & (GRID_SIZE - 1), yi + 1, xf - 1.0f, yf - 1.0f);
+        int a  = perm[xi]     + yi;
+        int aa = perm[a]      + zi;
+        int ab = perm[a + 1]  + zi;
+        int b  = perm[xi + 1] + yi;
+        int ba = perm[b]      + zi;
+        int bb = perm[b + 1]  + zi;
 
-        float x1 = interpolate(n000, n100, xf);
-        float x2 = interpolate(n010, n110, xf);
-        float y1 = interpolate(x1, x2, yf);
+        float res = lerp(
+                lerp(
+                        lerp(grad3(perm[aa],     xf,       yf,       zf),
+                             grad3(perm[ba],     xf - 1f,  yf,       zf),      u),
+                        lerp(grad3(perm[ab],     xf,       yf - 1f,  zf),
+                             grad3(perm[bb],     xf - 1f,  yf - 1f,  zf),      u),
+                        v),
+                lerp(
+                        lerp(grad3(perm[aa + 1], xf,       yf,       zf - 1f),
+                             grad3(perm[ba + 1], xf - 1f,  yf,       zf - 1f), u),
+                        lerp(grad3(perm[ab + 1], xf,       yf - 1f,  zf - 1f),
+                             grad3(perm[bb + 1], xf - 1f,  yf - 1f,  zf - 1f), u),
+                        v),
+                w);
 
-        float x3 = interpolate(n001, n101, xf);
-        float x4 = interpolate(n011, n111, xf);
-        float y2 = interpolate(x3, x4, yf);
-
-        return interpolate(y1, y2, zf);
+        return res;
     }
 }
