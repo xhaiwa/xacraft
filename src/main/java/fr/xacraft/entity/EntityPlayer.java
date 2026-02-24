@@ -1,6 +1,7 @@
 package fr.xacraft.entity;
 
 import fr.xacraft.client.Window;
+import fr.xacraft.inventory.Inventory;
 import fr.xacraft.render.Camera;
 import fr.xacraft.world.World;
 import org.joml.Vector3f;
@@ -19,6 +20,8 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
     private boolean noclip = false;
     private boolean nKeyWasPressed = false;
 
+    private Inventory inventory;
+
     public EntityPlayer(Vector3f position,
                         Vector3f boudingBox,
                         World world) {
@@ -34,6 +37,8 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
                 new Vector3f(0, 0, 0),
                 16 / 9.f, 70.f, 0.1f, 1000.f
         );
+
+        this.inventory = new Inventory(36);
     }
 
     @Override
