@@ -44,6 +44,7 @@ public class Game {
                 new Vector3f(0, 80, 5),
                 new Vector3f(0.6f, 1.8f, 0.6f),
                 this.world);
+        this.world.addEntity(this.player);
 
         for (int i = 0; i < 50; i++) {
             this.world.updateChunks(this.player.getCamera().getPosition());

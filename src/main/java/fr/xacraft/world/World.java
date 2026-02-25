@@ -1,6 +1,7 @@
 package fr.xacraft.world;
 
 import fr.xacraft.block.BlockType;
+import fr.xacraft.entity.Entity;
 import fr.xacraft.render.TextureAtlas;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
@@ -16,6 +17,8 @@ public class World {
     private int lastCamChunkZ = Integer.MAX_VALUE;
     private TextureAtlas atlas;
     private TerrainGenerator terrainGenerator;
+
+    private List<Entity> entities = new ArrayList<>();
 
     private Queue<Vector2i> chunksToGenerate = new LinkedList<>();
     private Queue<Chunk> chunksToMesh = new LinkedList<>();
@@ -181,5 +184,13 @@ public class World {
 
     public TextureAtlas getAtlas() {
         return this.atlas;
+    }
+
+    public List<Entity> getEntities() {
+        return entities;
+    }
+
+    public void addEntity(Entity entity) {
+        entities.add(entity);
     }
 }

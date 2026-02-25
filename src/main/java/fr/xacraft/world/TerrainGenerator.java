@@ -121,8 +121,6 @@ public class TerrainGenerator {
 
         int height = (int) (heightValue * 200.0f) - 30;
 
-        height = Math.max(20, Math.min(210, height));
-
         return height;
     }
 
@@ -142,7 +140,7 @@ public class TerrainGenerator {
             float density = getDensity(worldX, y, worldZ, surfaceHeight);
             boolean isCave = isCaveAt(worldX, y, worldZ, surfaceHeight);
 
-            if (isCave && y > 3 && y < surfaceHeight - 3) {
+            if (isCave) {
                 density = -1.0f;
             }
 
@@ -150,38 +148,18 @@ public class TerrainGenerator {
             cave[y] = isCave;
         }
 
+
         for (int y = 0; y < 255; y++) {
             if (solid[y]) {
-                boolean isTopSurface = (y == 254) || !solid[y + 1];
-
-                if (y < 3) {
-                    blocks[x][y][z] = new Block(BlockType.STONE);
-                } else if (isTopSurface) {
-                    if (y <= SEA_LEVEL) {
-                        blocks[x][y][z] = new Block(
-                                (biome == BiomeType.OCEAN || biome == BiomeType.BEACH)
-                                        ? BlockType.SAND : BlockType.DIRT);
-                    } else {
-                        blocks[x][y][z] = new Block(biome.getTopBlock());
-                    }
-                } else {
-                    int depthToAir = 0;
-                    for (int above = y + 1; above < 255 && above <= y + 5; above++) {
-                        if (!solid[above]) break;
-                        depthToAir++;
-                    }
-                    if (depthToAir <= 3) {
-                        if (biome == BiomeType.DESERT || biome == BiomeType.BEACH || biome == BiomeType.OCEAN) {
-                            blocks[x][y][z] = new Block(BlockType.SAND);
-                        } else {
-                            blocks[x][y][z] = new Block(BlockType.DIRT);
-                        }
-                    } else {
-                        blocks[x][y][z] = new Block(BlockType.STONE);
-                    }
+                blocks[x][y][z] = cave[y] ? new Block(BlockType.AIR) : new Block(BlockType.STONE);
+                if (blocks[x][y][z].getBlockType() == BlockType.AIR) continue;
+                if (y == surfaceHeight - 1) {
+                    blocks[x][y][z] = new Block(biome.getTopBlock());
+                } else if (y < surfaceHeight - 1 && y >= surfaceHeight - 5 - 1) {
+                    blocks[x][y][z] = new Block(biome.getFillerBlock());
                 }
             } else {
-                if (y <= SEA_LEVEL && !cave[y] && surfaceHeight <= SEA_LEVEL) {
+                if (y <= SEA_LEVEL && !cave[y] && surfaceHeight - 1 <= SEA_LEVEL) {
                     blocks[x][y][z] = new Block(BlockType.WATER);
                 } else {
                     blocks[x][y][z] = new Block(BlockType.AIR);
@@ -224,8 +202,7 @@ public class TerrainGenerator {
 
 
     private boolean isCaveAt(int worldX, int y, int worldZ, int surfaceHeight) {
-        if (y < 6 || y > surfaceHeight - 5) return false;
-
+        if (y == 0) return false;
         float caveMask = sampleNormalized(caveMaskNoise, worldX, worldZ, 0.0008f, 3, 0.5f);
         if (caveMask < 0.4f) return false;
 
