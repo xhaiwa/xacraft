@@ -2,6 +2,7 @@ package fr.xacraft.world;
 
 import fr.xacraft.block.Block;
 import fr.xacraft.block.BlockType;
+import fr.xacraft.structure.Tree;
 
 public class TerrainGenerator {
     private PerlinNoise continentNoise;
@@ -28,7 +29,7 @@ public class TerrainGenerator {
 
     private long seed;
 
-    private static final int SEA_LEVEL = 62;
+    private static final int SEA_LEVEL = 72;
 
     public TerrainGenerator(long seed) {
         this.seed = seed;
@@ -119,7 +120,7 @@ public class TerrainGenerator {
 
         heightValue = heightValue * 0.65f + continent * 0.35f;
 
-        int height = (int) (heightValue * 200.0f) - 30;
+        int height = (int) (heightValue * 200.0f) - 20;
 
         return height;
     }
@@ -155,6 +156,11 @@ public class TerrainGenerator {
                 if (blocks[x][y][z].getBlockType() == BlockType.AIR) continue;
                 if (y == surfaceHeight - 1) {
                     blocks[x][y][z] = new Block(biome.getTopBlock());
+                    if ((int) (Math.random() * 500) == 10
+                            && (biome == BiomeType.FOREST || biome == BiomeType.PLAINS)) {
+                        Tree.generate(blocks, x, y + 1, z);
+                        blocks[x][y][z] = new Block(BlockType.DIRT);
+                    }
                 } else if (y < surfaceHeight - 1 && y >= surfaceHeight - 5 - 1) {
                     blocks[x][y][z] = new Block(biome.getFillerBlock());
                 }
@@ -162,7 +168,8 @@ public class TerrainGenerator {
                 if (y <= SEA_LEVEL && !cave[y] && surfaceHeight - 1 <= SEA_LEVEL) {
                     blocks[x][y][z] = new Block(BlockType.WATER);
                 } else {
-                    blocks[x][y][z] = new Block(BlockType.AIR);
+                    if (blocks[x][y][z] == null)
+                        blocks[x][y][z] = new Block(BlockType.AIR);
                 }
             }
         }

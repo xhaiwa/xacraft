@@ -1,6 +1,7 @@
 package fr.xacraft.client;
 
 import fr.xacraft.entity.EntityPlayer;
+import fr.xacraft.render.PlayerUI;
 import fr.xacraft.render.Renderer;
 import fr.xacraft.render.UIRenderer;
 import fr.xacraft.world.World;
@@ -11,17 +12,21 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Game {
+    public static int currentSlot = 0;
+
     private Window window;
     private World world;
     private Renderer renderer;
     private UIRenderer uiRenderer;
     private EntityPlayer player;
+    private PlayerUI playerUI;
 
     private double lastMouseX = 400;
     private double lastMouseY = 300;
     private boolean firstMouse = true;
 
     private boolean mouseCaptured = true;
+    private int barTextureId;
 
     private static final double TICK_RATE = 20.0;
     private static final double NS_PER_TICK = 1_000_000_000.0 / TICK_RATE;
@@ -39,12 +44,14 @@ public class Game {
         this.renderer.init();
         this.uiRenderer = UIRenderer.getInstance();
         this.uiRenderer.init("src/main/resources/fonts/Monocraft.ttf", 34.f);
+        this.uiRenderer.initQuadRenderer();
         this.world = new World();
         this.player = new EntityPlayer(
                 new Vector3f(0, 80, 5),
                 new Vector3f(0.6f, 1.8f, 0.6f),
                 this.world);
         this.world.addEntity(this.player);
+        this.playerUI = new PlayerUI(this.uiRenderer, this.player);
 
         for (int i = 0; i < 50; i++) {
             this.world.updateChunks(this.player.getCamera().getPosition());
@@ -115,6 +122,8 @@ public class Game {
         uiRenderer.drawText("FPS: " + fps + " | TPS: " + tps, 10.f, 2 * 32.f, 0.5f,
                 new float[]{1.f, 1.f, 1.f, 1.f});
 
+        playerUI.render();
+
         Vector3f pos = player.getCamera().getPosition();
         uiRenderer.drawText(String.format("X: %.1f Y: %.1f Z: %.1f", pos.x, pos.y, pos.z),
                 10.f, 3 * 32.f, 0.5f, new float[]{1.f, 1.f, 1.f, 1.f});
@@ -145,12 +154,34 @@ public class Game {
             } else {
                 glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
+        }
 
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if (glfwGetKey(windowHandle, GLFW_KEY_1) == GLFW_PRESS) {
+            currentSlot = 0;
+        }
+        if (glfwGetKey(windowHandle, GLFW_KEY_2) == GLFW_PRESS) {
+            currentSlot = 1;
+        }
+        if (glfwGetKey(windowHandle, GLFW_KEY_3) == GLFW_PRESS) {
+            currentSlot = 2;
+        }
+        if (glfwGetKey(windowHandle, GLFW_KEY_4) == GLFW_PRESS) {
+            currentSlot = 3;
+        }
+        if (glfwGetKey(windowHandle, GLFW_KEY_5) == GLFW_PRESS) {
+            currentSlot = 4;
+        }
+        if (glfwGetKey(windowHandle, GLFW_KEY_6) == GLFW_PRESS) {
+            currentSlot = 5;
+        }
+        if (glfwGetKey(windowHandle, GLFW_KEY_7) == GLFW_PRESS) {
+            currentSlot = 6;
+        }
+        if (glfwGetKey(windowHandle, GLFW_KEY_8) == GLFW_PRESS) {
+            currentSlot = 7;
+        }
+        if (glfwGetKey(windowHandle, GLFW_KEY_9) == GLFW_PRESS) {
+            currentSlot = 8;
         }
     }
 

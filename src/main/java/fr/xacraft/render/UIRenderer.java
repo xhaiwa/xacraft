@@ -32,6 +32,9 @@ public class UIRenderer {
     private STBTTBakedChar.Buffer charData;
     private float fontHeight;
 
+    private int quadShaderProgram;
+    private int quadVao, quadVbo;
+
     public void init(String fontPath, float fontSize) {
         this.fontHeight = fontSize;
 
@@ -222,6 +225,141 @@ public class UIRenderer {
         glUseProgram(0);
     }
 
+    public int loadTexture(String path) {
+        int texId;
+        try (MemoryStack stack = stackPush()) {
+            ByteBuffer image;
+            int[] w = new int[1];
+            int[] h = new int[1];
+            int[] comp = new int[1];
+            image = STBImage.stbi_load(path, w, h, comp, 4);
+            if (image == null) {
+                throw new RuntimeException("Failed to load texture: " + path);
+            }
+            texId = glGenTextures();
+            glBindTexture(GL_TEXTURE_2D, texId);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w[0], h[0], 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            STBImage.stbi_image_free(image);
+        }
+        return texId;
+    }
+
+    public int loadTexture(String path, boolean pixelPerfect) {
+        int texId;
+        try (MemoryStack stack = stackPush()) {
+            ByteBuffer image;
+            int[] w = new int[1];
+            int[] h = new int[1];
+            int[] comp = new int[1];
+            image = STBImage.stbi_load(path, w, h, comp, 4);
+            if (image == null) {
+                throw new RuntimeException("Failed to load texture: " + path);
+            }
+            texId = glGenTextures();
+            glBindTexture(GL_TEXTURE_2D, texId);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w[0], h[0], 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+            int filter = pixelPerfect ? GL_NEAREST : GL_LINEAR;
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            STBImage.stbi_image_free(image);
+        }
+        return texId;
+    }
+
+    public void initQuadRenderer() {
+        String vertexShader =
+                "#version 330 core\n" +
+                        "layout (location = 0) in vec2 aPos;\n" +
+                        "layout (location = 1) in vec2 aTexCoord;\n" +
+                        "out vec2 TexCoord;\n" +
+                        "uniform mat4 projection;\n" +
+                        "void main() {\n" +
+                        "    gl_Position = projection * vec4(aPos, 0.0, 1.0);\n" +
+                        "    TexCoord = aTexCoord;\n" +
+                        "}\n";
+        String fragmentShader =
+                "#version 330 core\n" +
+                        "in vec2 TexCoord;\n" +
+                        "out vec4 FragColor;\n" +
+                        "uniform sampler2D tex;\n" +
+                        "uniform vec4 color;\n" +
+                        "void main() {\n" +
+                        "    FragColor = texture(tex, TexCoord) * color;\n" +
+                        "}\n";
+        int vertexId = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexId, vertexShader);
+        glCompileShader(vertexId);
+        checkShaderErrors(vertexId);
+        int fragmentId = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentId, fragmentShader);
+        glCompileShader(fragmentId);
+        checkShaderErrors(fragmentId);
+        quadShaderProgram = glCreateProgram();
+        glAttachShader(quadShaderProgram, vertexId);
+        glAttachShader(quadShaderProgram, fragmentId);
+        glLinkProgram(quadShaderProgram);
+        checkProgramErrors(quadShaderProgram);
+        glDeleteShader(vertexId);
+        glDeleteShader(fragmentId);
+        glUseProgram(quadShaderProgram);
+        int texLoc = glGetUniformLocation(quadShaderProgram, "tex");
+        glUniform1i(texLoc, 0);
+        glUseProgram(0);
+        quadVao = glGenVertexArrays();
+        quadVbo = glGenBuffers();
+        glBindVertexArray(quadVao);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
+        glBufferData(GL_ARRAY_BUFFER, 6 * 4 * 4, GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, false, 4 * 4, 0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * 4, 2 * 4);
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+
+    public void drawTexturedQuad(float x, float y, float width, float height, float scale, int textureId, float[] texCoords, float[] color) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glUseProgram(quadShaderProgram);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        glBindVertexArray(quadVao);
+        int colorLoc = glGetUniformLocation(quadShaderProgram, "color");
+        glUniform4f(colorLoc, color[0], color[1], color[2], color[3]);
+        int projLoc = glGetUniformLocation(quadShaderProgram, "projection");
+        FloatBuffer projMat = BufferUtils.createFloatBuffer(16);
+        createOrthoMatrix(projMat, 0, Window.getInstance().getWidth(), Window.getInstance().getHeight(), 0);
+        glUniformMatrix4fv(projLoc, false, projMat);
+        float w = width * scale;
+        float h = height * scale;
+        float[] vertices = {
+                x, y, texCoords[0], texCoords[1],
+                x + w, y, texCoords[2], texCoords[3],
+                x + w, y + h, texCoords[4], texCoords[5],
+                x, y, texCoords[0], texCoords[1],
+                x + w, y + h, texCoords[4], texCoords[5],
+                x, y + h, texCoords[6], texCoords[7]
+        };
+        glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+        int error = glGetError();
+        if (error != GL_NO_ERROR) {
+            System.err.println("OpenGL error (quad): " + error);
+        }
+    }
 
     private void createOrthoMatrix(FloatBuffer buffer, float left, float right,
                                    float bottom, float top) {
@@ -254,6 +392,9 @@ public class UIRenderer {
         glDeleteVertexArrays(vao);
         glDeleteBuffers(vbo);
         glDeleteProgram(shaderProgram);
+        glDeleteVertexArrays(quadVao);
+        glDeleteBuffers(quadVbo);
+        glDeleteProgram(quadShaderProgram);
     }
 
     public static UIRenderer getInstance() {

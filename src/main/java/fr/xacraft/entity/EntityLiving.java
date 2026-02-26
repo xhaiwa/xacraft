@@ -31,4 +31,8 @@ public class EntityLiving extends Entity {
     public void updateAi() {
 
     }
+
+    public float getHealth() {
+        return this.health;
+    }
 }

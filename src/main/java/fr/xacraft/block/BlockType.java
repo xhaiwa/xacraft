@@ -8,7 +8,9 @@ public enum BlockType {
     COBBLESTONE(false, true, 5, 5, 5, 5, 5, 5),
     WATER(true, false, 6, 6, 6, 6, 6, 6),
     SAND(false, true, 7, 7, 7, 7, 7, 7),
-    SNOW(false, true, 8, 8, 8, 8, 8, 8);
+    SNOW(false, true, 8, 8, 8, 8, 8, 8),
+    OAK_LOG(false, true, 10, 10, 9, 9, 9, 9),
+    OAK_LEAVES(false, true, 11, 11, 11, 11, 11, 11);
 
     private boolean transparent;
     private boolean solid;
