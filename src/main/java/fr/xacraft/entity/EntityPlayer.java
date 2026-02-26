@@ -37,7 +37,8 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
         this.camera = new Camera(
                 position.add(0, 1.6f, 0, new Vector3f()),
                 new Vector3f(0, 0, 0),
-                16 / 9.f, 70.f, 0.1f, 10000.f
+                (float) Window.getInstance().getWidth() / Window.getInstance().getHeight(),
+                70.f, 0.1f, 10000.f
         );
 
         this.inventory = new Inventory(36);
