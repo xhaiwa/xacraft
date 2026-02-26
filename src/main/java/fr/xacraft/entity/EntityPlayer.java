@@ -2,6 +2,8 @@ package fr.xacraft.entity;
 
 import fr.xacraft.client.Window;
 import fr.xacraft.inventory.Inventory;
+import fr.xacraft.item.ItemStack;
+import fr.xacraft.item.Items;
 import fr.xacraft.render.Camera;
 import fr.xacraft.world.World;
 import org.joml.Vector3f;
@@ -39,6 +41,8 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
         );
 
         this.inventory = new Inventory(36);
+        this.inventory.setSlot(0, new ItemStack(Items.GRASS, 23));
+        this.inventory.setSlot(1, new ItemStack(Items.SAND, 54));
     }
 
     @Override
@@ -197,5 +201,9 @@ public class EntityPlayer extends EntityLiving implements IEntityPlayable {
 
     public boolean isNoclip() {
         return noclip;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
     }
 }

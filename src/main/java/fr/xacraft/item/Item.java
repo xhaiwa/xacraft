@@ -1,5 +1,7 @@
 package fr.xacraft.item;
 
+import fr.xacraft.block.BlockType;
+
 public class Item {
 
     private String id;
@@ -34,5 +36,31 @@ public class Item {
         Item item = (Item) o;
 
         return id.equals(item.id);
+    }
+
+    public boolean isBlockItem() {
+        return switch (this.id) {
+            case "xacraft:stone", "xacraft:grass", "xacraft:dirt", "xacraft:cobblestone",
+                 "xacraft:sand", "xacraft:snow", "xacraft:oak_log", "xacraft:oak_leaves" -> true;
+            default -> false;
+        };
+    }
+
+    public BlockType getBlockType() {
+        try {
+            return switch (this.id) {
+                case "xacraft:stone" -> BlockType.STONE;
+                case "xacraft:grass" -> BlockType.GRASS;
+                case "xacraft:dirt" -> BlockType.DIRT;
+                case "xacraft:cobblestone" -> BlockType.COBBLESTONE;
+                case "xacraft:sand" -> BlockType.SAND;
+                case "xacraft:snow" -> BlockType.SNOW;
+                case "xacraft:oak_log" -> BlockType.OAK_LOG;
+                case "xacraft:oak_leaves" -> BlockType.OAK_LEAVES;
+                default -> throw new IllegalArgumentException("Item is not a block item");
+            };
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

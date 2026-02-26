@@ -4,6 +4,10 @@ import fr.xacraft.block.BlockType;
 import fr.xacraft.client.Game;
 import fr.xacraft.client.Window;
 import fr.xacraft.entity.EntityPlayer;
+import fr.xacraft.inventory.Inventory;
+import fr.xacraft.item.Item;
+import fr.xacraft.item.ItemStack;
+import fr.xacraft.item.Items;
 import fr.xacraft.shader.Shader;
 import fr.xacraft.shader.ShaderProgram;
 import org.joml.Matrix4f;
@@ -190,12 +194,35 @@ public class PlayerUI {
         );
     }
 
+    public void renderItemstackInSlot(int slot, ItemStack itemStack, int count) {
+        if (itemStack == null) return;
+        if (itemStack.getItem().isBlockItem()) {
+            renderBlockInSlot(slot, itemStack.getItem().getBlockType());
+            uiRenderer.drawText(
+                    String.valueOf(count),
+                    Window.getInstance().getWidth() / 2.f + slot * 80 + 640,
+                    Window.getInstance().getHeight() * 2.f - 20.f,
+                    0.5f,
+                    new float[]{1.f, 1.f, 1.f, 1.f}
+            );
+        }
+    }
+
+    public void renderInventoryInSlot(Inventory inventory) {
+        for (int i = 0; i < 8; i++) {
+            ItemStack itemStack = inventory.getSlot(i);
+            if (itemStack != null) {
+                renderItemstackInSlot(i, itemStack, itemStack.getCount());
+            }
+        }
+    }
 
     public void render() {
         this.renderItemBar();
         this.renderCurrentSlot();
         this.renderCrosshair();
         this.renderHealth();
-        this.renderBlockInSlot(0, BlockType.GRASS);
+        // this.renderItemstackInSlot(0, new ItemStack(Items.GRASS, 64), 64);
+        this.renderInventoryInSlot(player.getInventory());
     }
 }
