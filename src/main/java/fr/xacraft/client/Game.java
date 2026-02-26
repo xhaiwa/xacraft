@@ -61,7 +61,6 @@ public class Game {
     }
 
     public void loop() {
-        glClearColor(0.5f, 0.7f, 1.0f, 1.0f);
 
         long lastTime = System.nanoTime();
         double delta = 0.0;
@@ -84,6 +83,7 @@ public class Game {
 
             float alpha = (float) delta;
 
+            glClearColor(0.5f, 0.7f, 1.0f, 1.0f);
             render(alpha);
             frameCount++;
 
