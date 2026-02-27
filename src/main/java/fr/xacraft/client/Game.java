@@ -4,6 +4,7 @@ import fr.xacraft.entity.EntityPlayer;
 import fr.xacraft.render.PlayerUI;
 import fr.xacraft.render.Renderer;
 import fr.xacraft.render.UIRenderer;
+import fr.xacraft.render.ViewModelRenderer;
 import fr.xacraft.world.World;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -18,6 +19,7 @@ public class Game {
     private World world;
     private Renderer renderer;
     private UIRenderer uiRenderer;
+    private ViewModelRenderer viewModelRenderer;
     private EntityPlayer player;
     private PlayerUI playerUI;
 
@@ -45,6 +47,7 @@ public class Game {
         this.uiRenderer = UIRenderer.getInstance();
         this.uiRenderer.init("src/main/resources/fonts/Monocraft.ttf", 34.f);
         this.uiRenderer.initQuadRenderer();
+        this.viewModelRenderer = new ViewModelRenderer();
         this.world = new World();
         this.player = new EntityPlayer(
                 new Vector3f(0, 80, 5),
@@ -116,6 +119,7 @@ public class Game {
         player.interpolate(alpha);
 
         renderer.render(player.getCamera(), world);
+        viewModelRenderer.render(alpha);
 
         uiRenderer.drawText("Xacraft pre-alpha", 10.f, 1 * 32.f, 0.5f,
                 new float[]{1.f, 1.f, 1.f, 1.f});
