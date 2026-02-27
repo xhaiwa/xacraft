@@ -10,7 +10,7 @@ import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class EntityPlayer extends EntityLiving implements IEntityPlayable {
+public class EntityPlayer extends LivingEntity implements IEntityPlayable {
 
     private Camera camera;
 

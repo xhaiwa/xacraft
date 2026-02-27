@@ -6,9 +6,14 @@ import fr.xacraft.render.TextureAtlas;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import static fr.xacraft.settings.Settings.renderDistance;
+import static fr.xacraft.world.NoiseUtils.toGrayImage;
 
 public class World {
     private List<Chunk> chunks;
@@ -35,7 +40,7 @@ public class World {
         this.chunks = new ArrayList<>();
         this.chunkMap = new HashMap<>();
         this.atlas = new TextureAtlas("src/main/resources/textures/atlas.png");
-        this.terrainGenerator = new TerrainGenerator(3489237498247923942L);
+        this.terrainGenerator = new TerrainGenerator(0l);
     }
 
     public void updateChunks(Vector3f cameraPos) {
@@ -192,5 +197,45 @@ public class World {
 
     public void addEntity(Entity entity) {
         entities.add(entity);
+    }
+
+    public void image() {
+        float[][] heightMap = new float[16 * 100][16 * 100];
+
+        for (int x = 0; x < 100; x++) {
+            for (int z = 0; z < 100; z++) {
+                Chunk chunk = new Chunk(new Vector2i(x, z), this, terrainGenerator);
+                chunk.generateChunk();
+                float[][] chunkHeight = chunk.getHeightDataNormalized();
+                for (int lx = 0; lx < 16; lx++)
+                    for (int lz = 0; lz < 16; lz++)
+                        heightMap[x * 16 + lx][z * 16 + lz] = chunkHeight[lx][lz];
+            }
+            if (x % 1 == 0) {
+                System.out.println("Generated " + x + " chunks");
+            }
+        }
+
+        float min = Float.MAX_VALUE, max = -Float.MAX_VALUE;
+        for (float[] row : heightMap)
+            for (float v : row) {
+                if (v < min) min = v;
+                if (v > max) max = v;
+            }
+
+        float range = max - min;
+        for (int i = 0; i < heightMap.length; i++)
+            for (int j = 0; j < heightMap[i].length; j++)
+                heightMap[i][j] = range > 0 ? (heightMap[i][j] - min) / range : 0.5f;
+
+
+        BufferedImage image = toGrayImage(heightMap);
+        System.out.println(Arrays.deepToString(heightMap));
+        File output = new File("/home/xhaiwa/Documents/world.jpg");
+        try {
+            ImageIO.write(image, "jpg", output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

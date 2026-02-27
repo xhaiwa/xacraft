@@ -55,12 +55,12 @@ public class ViewModelRenderer {
                 0.01f,
                 10.f);
 
-        Matrix4f view = new Matrix4f().translate(0.56f, -1f, -0.72f);
+        Matrix4f view = new Matrix4f().translate(ViewModelTransform.transform);
 
         Matrix4f model = new Matrix4f()
-                .rotateX((float) Math.toRadians(-60f))
-                .rotateY((float) Math.toRadians(-72f))
-                .rotateZ((float) Math.toRadians(160f))
+                .rotateX((float) Math.toRadians(ViewModelTransform.rotation.x))
+                .rotateY((float) Math.toRadians(ViewModelTransform.rotation.y))
+                .rotateZ((float) Math.toRadians(ViewModelTransform.rotation.z))
                 .scale(1f);
 
         handShader.use();

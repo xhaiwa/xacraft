@@ -1,14 +1,10 @@
 package fr.xacraft.world;
 
-import java.util.Random;
-
 public class VoronoiNoise {
-    private Random random;
-    private long seed;
+    private final long seed;
 
     public VoronoiNoise(long seed) {
         this.seed = seed;
-        this.random = new Random(seed);
     }
 
     public static class VoronoiResult {
@@ -28,8 +24,9 @@ public class VoronoiNoise {
         float minDist = Float.MAX_VALUE;
         float closestValue = 0.0f;
 
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
+        // Rayon étendu à 2 pour éviter les artefacts aux bords
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
                 int neighborX = cellX + dx;
                 int neighborZ = cellZ + dz;
 
@@ -46,21 +43,27 @@ public class VoronoiNoise {
             }
         }
 
-        return new VoronoiResult(closestValue, minDist);
+        // Normalisation approximative (distance max ~= 1.5 en espace cellule)
+        return new VoronoiResult(closestValue, Math.min(minDist / 1.5f, 1.0f));
     }
 
     private float[] getRandomPoint(int cellX, int cellZ) {
+        // Hash robuste style xxHash / Squirrel3 — évite les collisions
         long hash = seed;
-        hash = hash * 31 + cellX;
-        hash = hash * 31 + cellZ;
+        hash ^= (long) cellX * 0x9E3779B97F4A7C15L;
+        hash ^= (long) cellZ * 0x6C62272E07BB0142L;
+        hash ^= (hash >>> 30);
+        hash *= 0xBF58476D1CE4E5B9L;
+        hash ^= (hash >>> 27);
+        hash *= 0x94D049BB133111EBL;
+        hash ^= (hash >>> 31);
 
-        Random cellRandom = new Random(hash);
+        // Extraction de 3 floats [0, 1) depuis le hash sans instancier Random
+        float offsetX = (float) ((hash & 0xFFFFFFL) / (double) 0x1000000L);
+        float offsetZ = (float) (((hash >> 24) & 0xFFFFFFL) / (double) 0x1000000L);
+        float value   = (float) (((hash >> 48) & 0xFFFFL)   / (double) 0x10000L);
 
-        float offsetX = cellRandom.nextFloat();
-        float offsetZ = cellRandom.nextFloat();
-        float value = cellRandom.nextFloat();
-
-        return new float[] { offsetX, offsetZ, value };
+        return new float[]{ offsetX, offsetZ, value };
     }
 
     private float distance(float x1, float z1, float x2, float z2) {

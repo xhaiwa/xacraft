@@ -29,4 +29,13 @@ public class ItemEntity extends Entity {
     public void setItemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
     }
+    
+    @Override
+    public void update() {
+        super.update();
+    }
+    
+    public void render() {
+
+    }
 }

@@ -8,6 +8,29 @@ import java.util.Arrays;
 
 public class NoiseUtils {
 
+    public static void image(long seed) {
+        VoronoiNoise biomeVoronoi = new VoronoiNoise(seed + 9000);
+        float scale = 0.003f;
+        float data[][] = new float[1000][1000];
+        PerlinNoise noise = new PerlinNoise(seed + 7000);
+        for (int x = 0; x < 1000; x++) {
+            for (int z = 0; z < 1000; z++) {
+                VoronoiNoise.VoronoiResult voronoi = biomeVoronoi.getVoronoi(x * scale, z * scale);
+                float perlin = noise.octavePerlin(x * scale, z * scale, 3, 0.5f);
+                perlin = (perlin + 1.0f) * 0.5f;
+                data[x][z] = voronoi.value;
+            }
+        }
+        BufferedImage image = toGrayImage(data);
+        System.out.println(Arrays.deepToString(data));
+        File output = new File("/home/xhaiwa/Documents/voronoi.jpg");
+        try {
+            ImageIO.write(image, "jpg", output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void continentImage(long seed) {
         PerlinNoise noise = new PerlinNoise(seed);
         float[][] data = new float[1000][1000];

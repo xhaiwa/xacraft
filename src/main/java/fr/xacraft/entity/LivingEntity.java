@@ -3,13 +3,13 @@ package fr.xacraft.entity;
 import fr.xacraft.world.World;
 import org.joml.Vector3f;
 
-public class EntityLiving extends Entity {
+public class LivingEntity extends Entity {
 
     private float health;
     private float damage;
     private boolean isMob;
 
-    public EntityLiving(Vector3f position,
+    public LivingEntity(Vector3f position,
                         Vector3f boudingBox,
                         float health,
                         float damage,

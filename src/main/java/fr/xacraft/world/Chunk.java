@@ -567,4 +567,18 @@ public class Chunk {
     public boolean isMeshReady() {
         return meshReady;
     }
+
+    public float[][] getHeightDataNormalized() {
+        float[][] heightData = new float[16][16];
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                int y;
+                for (y = 254; y >= 0; y--) {
+                    if (block[x][y][z].getBlockType() != BlockType.AIR) break;
+                }
+                heightData[x][z] = y / 254.0f; // Normalize to [-1, 1]
+            }
+        }
+        return heightData;
+    }
 }

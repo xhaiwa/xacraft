@@ -5,9 +5,7 @@ import fr.xacraft.client.Game;
 import fr.xacraft.client.Window;
 import fr.xacraft.entity.EntityPlayer;
 import fr.xacraft.inventory.Inventory;
-import fr.xacraft.item.Item;
 import fr.xacraft.item.ItemStack;
-import fr.xacraft.item.Items;
 import fr.xacraft.shader.Shader;
 import fr.xacraft.shader.ShaderProgram;
 import org.joml.Matrix4f;
@@ -83,7 +81,7 @@ public class PlayerUI {
         int health = (int) player.getHealth();
         for (int i = 0; i < 10; i++) {
             uiRenderer.drawTexturedQuad(
-                    Window.getInstance().getWidth() / 2.f + i * 18 - 180,
+                    Window.getInstance().getWidth() / 2.f + i * 17 - 180,
                     Window.getInstance().getHeight() - 22 * 2 - 18,
                     9,
                     9,
@@ -101,7 +99,7 @@ public class PlayerUI {
 
         for (int i = 0; i < health / 2; i++) {
             uiRenderer.drawTexturedQuad(
-                    Window.getInstance().getWidth() / 2.f + i * 18 - 180,
+                    Window.getInstance().getWidth() / 2.f + i * 17 - 180,
                     Window.getInstance().getHeight() - 22 * 2 - 18,
                     9,
                     9,

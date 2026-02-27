@@ -34,6 +34,8 @@ public class TerrainGenerator {
     public TerrainGenerator(long seed) {
         this.seed = seed;
 
+        NoiseUtils.image(seed);
+
         this.continentNoise  = new PerlinNoise(seed);
         this.erosionNoise    = new PerlinNoise(seed + 500);
         this.baseNoise       = new PerlinNoise(seed + 1000);
@@ -65,8 +67,8 @@ public class TerrainGenerator {
 
                 int surfaceHeight = computeSurfaceHeight(worldX, worldZ);
 
-                float temperature = getVoronoiValue(worldX, worldZ, temperatureNoise, 0.0003f);
-                float humidity    = getVoronoiValue(worldX, worldZ, humidityNoise, 0.0004f);
+                float temperature = getVoronoiValue(worldX, worldZ, temperatureNoise, 0.003f);
+                float humidity    = getVoronoiValue(worldX, worldZ, humidityNoise, 0.004f);
                 BiomeType biome   = getBiome(temperature, humidity, surfaceHeight);
 
                 generateColumn3D(blocks, x, z, worldX, worldZ, surfaceHeight, biome);
@@ -75,9 +77,9 @@ public class TerrainGenerator {
     }
 
     private int computeSurfaceHeight(int worldX, int worldZ) {
-        float continent = sampleNormalized(continentNoise, worldX, worldZ, 0.00015f, 5, 0.55f);
+        float continent = sampleNormalized(continentNoise, worldX, worldZ, 0.0045f, 9, 0.55f);
 
-        float erosion = sampleNormalized(erosionNoise, worldX, worldZ, 0.0004f, 4, 0.5f);
+        float erosion = sampleNormalized(erosionNoise, worldX, worldZ, 0.009f, 9, 0.5f);
 
         float base = sampleNormalized(baseNoise, worldX, worldZ, 0.003f, 6, 0.55f);
 
@@ -148,7 +150,6 @@ public class TerrainGenerator {
             solid[y] = (y == 0) || (density > 0);
             cave[y] = isCave;
         }
-
 
         for (int y = 0; y < 255; y++) {
             if (solid[y]) {
