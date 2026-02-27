@@ -2,6 +2,7 @@ package fr.xacraft.world;
 
 import fr.xacraft.block.Block;
 import fr.xacraft.block.BlockType;
+import fr.xacraft.block.Blocks;
 import fr.xacraft.structure.Tree;
 
 public class TerrainGenerator {
@@ -155,24 +156,24 @@ public class TerrainGenerator {
 
         for (int y = 0; y < 255; y++) {
             if (solid[y]) {
-                blocks[x][y][z] = cave[y] ? new Block(BlockType.AIR) : new Block(BlockType.STONE);
+                blocks[x][y][z] = cave[y] ? Blocks.AIR : Blocks.STONE;
                 if (blocks[x][y][z].getBlockType() == BlockType.AIR) continue;
                 if (y == surfaceHeight - 1) {
-                    blocks[x][y][z] = new Block(biome.getTopBlock());
+                    blocks[x][y][z] = biome.getTopBlock();
                     if ((int) (Math.random() * 500) == 10
                             && (biome == BiomeType.FOREST || biome == BiomeType.PLAINS)) {
                         Tree.generate(blocks, x, y + 1, z);
-                        blocks[x][y][z] = new Block(BlockType.DIRT);
+                        blocks[x][y][z] = Blocks.DIRT;
                     }
                 } else if (y < surfaceHeight - 1 && y >= surfaceHeight - 5 - 1) {
-                    blocks[x][y][z] = new Block(biome.getFillerBlock());
+                    blocks[x][y][z] = biome.getFillerBlock();
                 }
             } else {
                 if (y <= SEA_LEVEL && !cave[y] && surfaceHeight - 1 <= SEA_LEVEL) {
-                    blocks[x][y][z] = new Block(BlockType.WATER);
+                    blocks[x][y][z] = Blocks.WATER;
                 } else {
                     if (blocks[x][y][z] == null)
-                        blocks[x][y][z] = new Block(BlockType.AIR);
+                        blocks[x][y][z] = Blocks.AIR;
                 }
             }
         }

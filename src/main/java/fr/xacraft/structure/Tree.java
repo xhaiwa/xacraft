@@ -2,6 +2,8 @@ package fr.xacraft.structure;
 
 import fr.xacraft.block.Block;
 import fr.xacraft.block.BlockType;
+import fr.xacraft.block.Blocks;
+
 import java.util.Random;
 
 public class Tree {
@@ -13,7 +15,7 @@ public class Tree {
         int maxZ = block[0][0].length;
 
         for (int y = 0; y < height; y++) {
-            placeBlock(block, worldX, worldY + y, worldZ, BlockType.OAK_LOG, maxX, maxY, maxZ);
+            placeBlock(block, worldX, worldY + y, worldZ, Blocks.OAK_LOG, maxX, maxY, maxZ);
         }
 
         int topLog = worldY + height - 1;
@@ -50,12 +52,12 @@ public class Tree {
                                   int maxX, int maxY, int maxZ) {
         if (x >= 0 && x < maxX && y >= 0 && y < maxY && z >= 0 && z < maxZ)
             if (block[x][y][z] == null)
-                block[x][y][z] = new Block(BlockType.OAK_LEAVES);
+                block[x][y][z] = Blocks.OAK_LEAVES;
     }
 
     private static void placeBlock(Block[][][] block, int x, int y, int z,
-                                   BlockType type, int maxX, int maxY, int maxZ) {
+                                   Block type, int maxX, int maxY, int maxZ) {
         if (x >= 0 && x < maxX && y >= 0 && y < maxY && z >= 0 && z < maxZ)
-            block[x][y][z] = new Block(type);
+            block[x][y][z] = type;
     }
 }

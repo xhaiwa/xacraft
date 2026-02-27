@@ -1,31 +1,33 @@
 package fr.xacraft.world;
 
+import fr.xacraft.block.Block;
 import fr.xacraft.block.BlockType;
+import fr.xacraft.block.Blocks;
 
 public enum BiomeType {
-    OCEAN(BlockType.WATER, BlockType.STONE, 45),
-    BEACH(BlockType.SAND, BlockType.STONE, 64),
-    PLAINS(BlockType.GRASS, BlockType.DIRT, 67),
-    FOREST(BlockType.GRASS, BlockType.DIRT, 72),
-    DESERT(BlockType.SAND, BlockType.STONE, 68),
-    MOUNTAINS(BlockType.STONE, BlockType.STONE, 100),
-    SNOW_MOUNTAINS(BlockType.SNOW, BlockType.STONE, 120);
+    OCEAN(Blocks.WATER, Blocks.STONE, 45),
+    BEACH(Blocks.SAND, Blocks.STONE, 64),
+    PLAINS(Blocks.GRASS, Blocks.DIRT, 67),
+    FOREST(Blocks.GRASS, Blocks.DIRT, 72),
+    DESERT(Blocks.SAND, Blocks.STONE, 68),
+    MOUNTAINS(Blocks.STONE, Blocks.STONE, 100),
+    SNOW_MOUNTAINS(Blocks.SNOW, Blocks.STONE, 120);
 
-    private BlockType topBlock;
-    private BlockType fillerBlock;
+    private Block topBlock;
+    private Block fillerBlock;
     private int baseHeight;
 
-    BiomeType(BlockType topBlock, BlockType fillerBlock, int baseHeight) {
+    BiomeType(Block topBlock, Block fillerBlock, int baseHeight) {
         this.topBlock = topBlock;
         this.fillerBlock = fillerBlock;
         this.baseHeight = baseHeight;
     }
 
-    public BlockType getTopBlock() {
+    public Block getTopBlock() {
         return topBlock;
     }
 
-    public BlockType getFillerBlock() {
+    public Block getFillerBlock() {
         return fillerBlock;
     }
 
