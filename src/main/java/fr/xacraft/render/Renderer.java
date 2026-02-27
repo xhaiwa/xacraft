@@ -71,7 +71,7 @@ public class Renderer {
         int camChunkZ = (int) Math.floor(camPos.z / 16.f);
 
         List<Chunk> visibleChunks = new ArrayList<>();
-        for (Chunk chunk : world.getChunks()) {
+        for (Chunk chunk : world.getChunkMap().values()) {
             Vector2i chunkPos = chunk.getPos();
             int dx = Math.abs(chunkPos.x - camChunkX);
             int dz = Math.abs(chunkPos.y - camChunkZ);

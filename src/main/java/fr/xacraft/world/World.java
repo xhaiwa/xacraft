@@ -16,7 +16,7 @@ import static fr.xacraft.settings.Settings.renderDistance;
 import static fr.xacraft.world.NoiseUtils.toGrayImage;
 
 public class World {
-    private List<Chunk> chunks;
+    //private List<Chunk> chunks;
     private Map<Vector2i, Chunk> chunkMap;
     private int lastCamChunkX = Integer.MAX_VALUE;
     private int lastCamChunkZ = Integer.MAX_VALUE;
@@ -37,7 +37,7 @@ public class World {
     private static final int UNLOAD_DISTANCE = renderDistance + 4;
 
     public World() {
-        this.chunks = new ArrayList<>();
+        //this.chunks = new ArrayList<>();
         this.chunkMap = new HashMap<>();
         this.atlas = new TextureAtlas("src/main/resources/textures/atlas.png");
         this.terrainGenerator = new TerrainGenerator(0l);
@@ -79,7 +79,7 @@ public class World {
             Chunk chunk = new Chunk(pos, this, terrainGenerator);
             chunk.generateChunk();
             chunkMap.put(pos, chunk);
-            chunks.add(chunk);
+            //chunks.add(chunk);
             chunksToMesh.add(chunk);
 
             generated++;
@@ -137,7 +137,7 @@ public class World {
             if (dx > UNLOAD_DISTANCE || dz > UNLOAD_DISTANCE) {
                 Chunk chunk = entry.getValue();
                 chunk.cleanup();
-                chunks.remove(chunk);
+                //chunks.remove(chunk);
                 iterator.remove();
                 unloaded++;
             }
@@ -154,12 +154,18 @@ public class World {
         }
     }
 
+    /*
     public List<Chunk> getChunks() {
         return chunks;
     }
+    */
 
     public Chunk getChunk(int chunkX, int chunkZ) {
         return chunkMap.get(new Vector2i(chunkX, chunkZ));
+    }
+
+    public Map<Vector2i, Chunk> getChunkMap() {
+        return chunkMap;
     }
 
     public boolean isBlockSolid(int chunkX, int chunkZ, int localX, int localY, int localZ) {
