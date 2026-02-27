@@ -91,25 +91,27 @@ public class TerrainGenerator {
 
         float ridge1 = ridgeNoise.octavePerlin(worldX * 0.005f, worldZ * 0.005f, 6, 0.6f);
         ridge1 = 1.0f - Math.abs(ridge1);
-        ridge1 = (float) Math.pow(ridge1, 2.0);
+        ridge1 = (float) Math.pow(ridge1, 1.4);
 
         float ridge2 = ridgeNoise2.octavePerlin(worldX * 0.007f, worldZ * 0.007f, 5, 0.55f);
         ridge2 = 1.0f - Math.abs(ridge2);
-        ridge2 = (float) Math.pow(ridge2, 2.5);
+        ridge2 = (float) Math.pow(ridge2, 1.6);
 
-        float ridgeCombined = Math.max(ridge1 * 0.7f, ridge2 * 0.6f) + ridge1 * ridge2 * 0.8f;
+        float ridgeCombined = Math.min(1.0f,
+                Math.max(ridge1 * 0.6f, ridge2 * 0.5f) + ridge1 * ridge2 * 0.4f); // ← était 0.8
 
         float peaks = peaksNoise.octavePerlin(worldX * 0.015f, worldZ * 0.015f, 5, 0.5f);
         peaks = 1.0f - Math.abs(peaks);
-        peaks = (float) Math.pow(peaks, 3.0);
+        peaks = (float) Math.pow(peaks, 2.0);
 
         float terrace = sampleNormalized(terraceNoise, worldX, worldZ, 0.006f, 3, 0.5f);
 
         float heightValue = base * 0.45f + detail1 * 0.3f + detail2 * 0.15f + continent * 0.1f;
 
+
         float erosionInfluence = smoothstep(erosion, 0.4f, 0.7f);
 
-        if (mountainFactor > 0.08f) {
+        if (mountainFactor > 0.25f) {
             float mInfluence = smoothstep(mountainFactor, 0.08f, 0.6f) * erosionInfluence;
 
             float mountainHeight = ridgeCombined * 0.5f + peaks * 0.3f + mountainFactor * 0.2f;
@@ -117,12 +119,12 @@ public class TerrainGenerator {
             float terraceStrength = mInfluence * 0.15f;
             float terraced = applyTerrace(mountainHeight, 6.0f, terrace * terraceStrength);
 
-            heightValue = lerp(heightValue, terraced + heightValue * 0.3f, mInfluence * 0.85f);
+            heightValue = lerp(heightValue, mountainHeight * 0.6f + heightValue * 0.4f, mInfluence * 0.6f);
         }
 
-        heightValue = heightValue * 0.65f + continent * 0.35f;
+        heightValue = heightValue * 0.80f + continent * 0.20f;
 
-        int height = (int) (heightValue * 200.0f) - 20;
+        int height = (int) (heightValue * 220.0f) - 30;
 
         return height;
     }
